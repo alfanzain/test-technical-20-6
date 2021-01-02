@@ -111,6 +111,17 @@ while($role = $roleQuery->fetch_assoc()) {
             margin-bottom: 50px;
         }
 
+        .role-button-edit {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .role-button-delete {
+            font-size: 1rem;
+            color: #ff1a0f; 
+            font-weight: bold;
+        }
+
         .hero-card {
             margin: 10px 0;
         }
@@ -118,6 +129,18 @@ while($role = $roleQuery->fetch_assoc()) {
         .hero-card .hero-name {
             text-transform: uppercase;
             letter-spacing: 0.2rem;
+        }
+
+        .hero-card .hero-detail {
+            display: none;
+        }
+
+        .hero-card .hero-button-detail {
+            width: 100%;
+            display: block;
+            margin-top: 2rem;
+            font-size: 1rem;
+            color: #fefefe;
         }
 
         .hero-card .card-footer, .hero-card .card-footer .row,  .hero-card .card-footer .col-6 {
@@ -167,7 +190,7 @@ while($role = $roleQuery->fetch_assoc()) {
         <div class="row role-row">
             <div class="col-12">
                 <h4>
-                    <?php echo $role['name']; ?>
+                    <?php echo $role['name']; ?> <a href="?action_type=edit_role&id_role=<?php echo $role['id'] ?>" class="role-button-edit">Edit</a> <a href="?action_type=delete_role&id_role=<?php echo $role['id'] ?>" class="role-button-delete">Delete</a>
                 </h4>
         
                 <div class="row hero-row">
@@ -192,12 +215,39 @@ while($role = $roleQuery->fetch_assoc()) {
                         
                         <div class="col-3">
                             <div class="card hero-card">
-                                <img src="hero_images/<?php echo $hero['image'];  ?>" class="card-img-top" alt="...">
+                                <?php 
+                                if($hero['image'] != null) {
+                                ?>
+                                <img src="hero_images/<?php echo $hero['image'];  ?>" class="card-img-top">
+                                <?php
+                                }
+                                ?>
                                 <div class="card-body">
                                     <h6 class="hero-name">
                                         <?php echo $hero['name']; ?>
                                     </h6>
-                                    <p class="card-text"><?php ?></p>
+                                    <div class="hero-detail">
+                                        <?php
+                                        if($hero['image'] != null) {
+                                        ?>
+                                        <img src="hero_images/<?php echo $hero['image'];  ?>" class="card-img-top">
+                                        
+                                        <br />
+                                        <br />
+                                        <?php
+                                        }
+                                        ?>
+                                        <h5>
+                                            <?php echo $hero['name']; ?>
+                                        </h5>
+                                        <h6>
+                                            <?php echo $role['name']; ?>
+                                        </h6>
+                                        <p>
+                                            <?php echo $hero['deskripsi']; ?>
+                                        </p>
+                                    </div>
+                                    <button class="btn btn-info hero-button-detail" data-toggle="modal" data-target="#hero-detail-modal">Detail</button>
                                 </div>
                                 <div class="card-footer">
                                     <div class="row">
@@ -302,10 +352,38 @@ while($role = $roleQuery->fetch_assoc()) {
         </div>
     </div>
 
+    <!-- Detail hero -->
+    <div class="modal fade" id="hero-detail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Hero</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+    <script class="">
+        $('#hero-detail-modal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            
+            var modal = $(this)
+            modal.find('.modal-body').html( button.parent().parent().parent().find('.hero-detail').html() )
+        })
+    </script>
 </body>
 </html>
