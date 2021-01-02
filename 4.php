@@ -22,6 +22,34 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
         header("Location: 4.php");
     }
 
+    // Role -- Update
+    if(@$_GET['action_type'] == 'edit_role') {
+        $roleName = $conn->real_escape_string($_GET['role_name']);
+
+        $editRoleQuery = $conn->query("UPDATE role SET
+            name = '$roleName'
+            WHERE id = '$_GET[id_role]'");
+
+        if (!$editRoleQuery) {
+            printf("Error: %s\n", mysqli_error($conn));
+            exit();
+        }
+        
+        header("location:4.php?message=edit_success");
+    }
+
+    // Role -- Delete
+    if(@$_GET['action_type'] == 'delete_role') {
+        $deleteRoleQuery = $conn->query("DELETE FROM role WHERE id = '$_GET[id_role]'");
+
+        if (!$deleteRoleQuery) {
+            printf("Error: %s\n", mysqli_error($conn));
+            exit();
+        }
+        
+        header("location:4.php?message=delete_success");
+    }
+
     // - Hero -- Create
     if(@$_POST['action_type'] == 'add_hero') {
         $limitSize = 10 * 1024 * 1024;
@@ -250,7 +278,7 @@ while($role = $roleQuery->fetch_assoc()) {
         <div class="row role-row">
             <div class="col-12">
                 <h4>
-                    <?php echo $role['name']; ?> <a href="?action_type=edit_role&id_role=<?php echo $role['id'] ?>" class="role-button-edit">Edit</a> <a href="?action_type=delete_role&id_role=<?php echo $role['id'] ?>" class="role-button-delete">Delete</a>
+                    <?php echo $role['name']; ?> <a href="#" data-toggle="modal" data-target="#role-edit-modal" class="role-button-edit" data-role-id="<?php echo $role['id']; ?>" data-role-name="<?php echo $role['name']; ?>">Edit</a> <a href="?action_type=delete_role&id_role=<?php echo $role['id'] ?>" class="role-button-delete">Delete</a>
                 </h4>
         
                 <div class="row hero-row">
@@ -360,7 +388,7 @@ while($role = $roleQuery->fetch_assoc()) {
     </div>
 
     <!-- Edit role -->
-    <div class="modal fade" id="role-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="role-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <form action="" method="get">
                 <input type="hidden" name="action_type" value="edit_role">
@@ -511,7 +539,16 @@ while($role = $roleQuery->fetch_assoc()) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script class="">
+    <script>
+        $('#role-edit-modal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            
+            var modal = $(this)
+
+            modal.find('[name="id_role"]').val( button.data('role-id') )
+            modal.find('[name="role_name"]').val( button.data('role-name') )
+        })
+
         $('#hero-detail-modal').on('show.bs.modal', function (event) {
             let button = $(event.relatedTarget)
             
