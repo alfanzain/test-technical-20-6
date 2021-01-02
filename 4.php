@@ -59,6 +59,66 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
         }
     }
 
+    // - Hero -- Update
+    if(@$_POST['action_type'] == 'edit_hero') {
+        if($_FILES['hero_image']['name'])
+        {
+            $limitSize = 10 * 1024 * 1024;
+            $extension =  array('png','jpg','jpeg','gif');
+            
+            $fileName = $_FILES['hero_image']['name'];
+            $tmp = $_FILES['hero_image']['tmp_name'];
+            $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
+            $fileSize = $_FILES['hero_image']['size'];
+    
+            if($fileSize > $limitSize){
+                header("location:4.php?message=post_failed&error=size_too_big");		
+            } else {
+                if(!in_array($fileType, $extension)){
+                    header("location:4.php?message=post_failed&error=extension_unacceptable");		
+                }else{
+                    $fileName = uniqid() . "." . $fileType;
+                    move_uploaded_file($tmp, 'hero_images/' . $fileName);
+
+                    $heroName = $conn->real_escape_string($_POST['hero_name']);
+                    $heroDescription = $conn->real_escape_string($_POST['hero_description']);
+    
+                    $editHeroQuery = $conn->query("UPDATE hero SET
+                        name = '$heroName',
+                        id_role = '$_POST[role]',
+                        image = '$fileName',
+                        deskripsi = '$heroDescription'
+                        WHERE id = $_POST[hero_id]
+                    ");
+    
+                    if (!$editHeroQuery) {
+                        printf("Error: %s\n", mysqli_error($conn));
+                        exit();
+                    }
+    
+                    header("location:4.php?message=post_success");
+                }
+            }
+        } else {
+            $heroName = $conn->real_escape_string($_POST['hero_name']);
+            $heroDescription = $conn->real_escape_string($_POST['hero_description']);
+
+            $editHeroQuery = $conn->query("UPDATE hero SET
+                name = '$heroName',
+                id_role = '$_POST[role]',
+                deskripsi = '$heroDescription'
+                WHERE id = $_POST[hero_id]
+            ");
+
+            if (!$editHeroQuery) {
+                printf("Error: %s\n", mysqli_error($conn));
+                exit();
+            }
+
+            header("location:4.php?message=post_success");
+        }
+    }
+
     // - Hero -- Delete
     if(@$_GET['action_type'] == 'delete_hero') {
         $deleteHeroquery = $conn->query("DELETE FROM hero WHERE id = '$_GET[id_hero]'");
@@ -223,9 +283,7 @@ while($role = $roleQuery->fetch_assoc()) {
                                 }
                                 ?>
                                 <div class="card-body">
-                                    <h6 class="hero-name">
-                                        <?php echo $hero['name']; ?>
-                                    </h6>
+                                    <h6 class="hero-name"><?php echo $hero['name']; ?></h6>
                                     <div class="hero-detail">
                                         <?php
                                         if($hero['image'] != null) {
@@ -243,16 +301,14 @@ while($role = $roleQuery->fetch_assoc()) {
                                         <h6>
                                             <?php echo $role['name']; ?>
                                         </h6>
-                                        <p>
-                                            <?php echo $hero['deskripsi']; ?>
-                                        </p>
+                                        <p class="hero-description"><?php echo $hero['deskripsi']; ?></p>
                                     </div>
                                     <button class="btn btn-info hero-button-detail" data-toggle="modal" data-target="#hero-detail-modal">Detail</button>
                                 </div>
                                 <div class="card-footer">
                                     <div class="row">
                                         <div class="col-6">
-                                            <a class="btn btn-primary">Edit</a>
+                                            <a class="btn btn-primary" data-toggle="modal" data-target="#hero-edit-modal" data-role="<?php echo $role['id']; ?>" data-hero="<?php echo $hero['id']; ?>">Edit</a>
                                         </div>
                                         <div class="col-6">
                                             <a href="?action_type=delete_hero&id_hero=<?php echo $hero['id'] ?>" class="btn btn-danger">Delete</a>
@@ -303,6 +359,34 @@ while($role = $roleQuery->fetch_assoc()) {
         </div>
     </div>
 
+    <!-- Edit role -->
+    <div class="modal fade" id="role-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="" method="get">
+                <input type="hidden" name="action_type" value="edit_role">
+                <input type="hidden" name="id_role" value="">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Role</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="role-name-content" class="col-form-label">Role</label>
+                            <input type="text" class="form-control" id="role-name-content" name="role_name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Add hero -->
     <div class="modal fade" id="hero-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -311,6 +395,56 @@ while($role = $roleQuery->fetch_assoc()) {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Add Hero</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="role-content" class="col-form-label">Role</label>
+                            <select id="role-content" class="form-control" name="role" required>
+                                <option value="">-- Choose Role --</option>
+                                <?php
+                                foreach ($listRole as $role)
+                                {
+                                ?>
+                                    <option value="<?php echo $role['id'] ?>"><?php echo $role['name'] ?></option>
+                                <?php
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hero-name-content" class="col-form-label">Name</label>
+                            <input type="text" class="form-control" id="hero-name-content" name="hero_name" autocomplete="off" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hero-image-content" class="col-form-label">Image</label>
+                            <input type="file" class="form-control" id="hero-image-content" name="hero_image">
+                        </div>
+                        <div class="form-group">
+                            <label for="hero-description-content" class="col-form-label">Description</label>
+                            <textarea id="hero-description-content" class="form-control" name="hero_description"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit hero -->
+    <div class="modal fade" id="hero-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action_type" value="edit_hero">
+                <input type="hidden" name="hero_id" value="">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Hero</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
@@ -383,6 +517,17 @@ while($role = $roleQuery->fetch_assoc()) {
             
             var modal = $(this)
             modal.find('.modal-body').html( button.parent().parent().parent().find('.hero-detail').html() )
+        })
+
+        $('#hero-edit-modal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            
+            var modal = $(this)
+
+            modal.find('[name="role"]').val( button.data('role') )
+            modal.find('[name="hero_id"]').val( button.data('hero') )
+            modal.find('[name="hero_name"]').val( button.parent().parent().parent().parent().find('.hero-name').text() )
+            modal.find('[name="hero_description"]').val( button.parent().parent().parent().parent().find('.hero-description').text() )
         })
     </script>
 </body>
