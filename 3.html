@@ -3,11 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomor 3</title>
+    <title>Number 3</title>
+    
+    <style type="text/css">
+    table {
+        border-collapse: collapse;
+    }
+    table td {
+        border: 1px solid black;
+        margin: 0;
+    }
+    </style>
 </head>
 <body>
-    Gambarlah sebuah pola agar dapat menampilkan gambar seperti berikut: Tampilkan juga line bordernya ya.
+    <h3>Answer number 3</h3>
 
+    <div class="input-area">
+        <input type="text" id="value" placeholder="Insert Value" style="margin-bottom: 15px;">
+        <button type="button" id="input">Create</button>
+    </div>
+
+    <div id="table">
+    </div>
+
+    <script type="text/javascript">
     
+        // let tableConstruct = '';
+
+        
+        // let tableArea = document.getElementById('table');
+        // let inputBtn = document.getElementById('input');
+        
+        // inputBtn.addEventListener('click', function(){
+
+        //         let rows = document.getElementById('row').value;
+        //         let columns = document.getElementById('column').value;
+        //         let numberInsideCol = 2;
+    
+        //         for(row = 0; row < rows; row++){
+        //             tableConstruct += '<tr>'; 
+        //                 for(column = 0; column <= columns; column++){
+        //                     tableConstruct += '<td>' + numberInsideCol + '</td>';
+        //                     numberInsideCol += 6;
+        //                 }
+        //             tableConstruct += '</tr>'
+        //         }
+        //         let table = '<table border="1px">' + tableConstruct + '</table>';
+        //         tableArea.innerHTML = table;
+        //     });
+    </script>
+
+    <script>
+        let table = document.getElementById('table');
+        let inputBtn = document.getElementById('input');
+
+        const gambarPola = value => {
+            let text = "DUMBWAYS"
+            let indexText = 0
+            let output = ''
+            
+            for (let row = 0; row <= value; row++) {
+                output += '<tr>'
+                for (let col = 0; col <= value; col++) {
+                    output += '<td>'
+
+                    if (col == row || col == (value - row)) {
+                        if(col >= text.length) {
+                            indexText = text.length - 1
+                        } else {
+                            indexText = col
+                        }
+                
+                        output += text[indexText]
+                    }
+
+                    output += '</td>'
+                }
+            
+                output += '</tr>'
+            }
+
+            table.innerHTML = `<table cellpadding="10">${output}</table>`
+        }
+
+        inputBtn.addEventListener('click', function() {
+            let value = document.getElementById('value').value;
+
+            console.log(value)
+            gambarPola(value)
+        })
+    </script>
 </body>
 </html>
