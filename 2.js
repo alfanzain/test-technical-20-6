@@ -1,0 +1,3 @@
+let cariNilaiTeratas = array => {
+    
+}
