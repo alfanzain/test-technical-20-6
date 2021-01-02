@@ -38,7 +38,7 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
             if(!in_array($fileType, $extension)){
                 header("location:4.php?message=post_failed&error=extension_unacceptable");		
             }else{
-                $fileName = date('d-m-Y').'-'.$fileName;
+                $fileName = uniqid() . "." . $fileType;
                 move_uploaded_file($tmp, 'hero_images/' . $fileName);
 
                 $addHeroQuery = $conn->query("INSERT INTO hero VALUES (
@@ -57,6 +57,18 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
                 header("location:4.php?message=post_success");
             }
         }
+    }
+
+    // - Hero -- Delete
+    if(@$_GET['action_type'] == 'delete_hero') {
+        $deleteHeroquery = $conn->query("DELETE FROM hero WHERE id = '$_GET[id_hero]'");
+
+        if (!$deleteHeroquery) {
+            printf("Error: %s\n", mysqli_error($conn));
+            exit();
+        }
+        
+        header("location:4.php?message=delete_success");
     }
 }
 
@@ -106,6 +118,28 @@ while($role = $roleQuery->fetch_assoc()) {
         .hero-card .hero-name {
             text-transform: uppercase;
             letter-spacing: 0.2rem;
+        }
+
+        .hero-card .card-footer, .hero-card .card-footer .row,  .hero-card .card-footer .col-6 {
+            padding: 0;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .hero-card .card-footer a {
+            display: block;
+            border-radius: 0;
+            color: #fefefe;
+        }
+
+        .hero-card .card-footer a.btn-primary {
+            border-radius: 0 0 0 4px;
+        }
+
+        .hero-card .card-footer a.btn-danger {
+            display: block;
+            border-radius: 0 0 4px 0;
+            color: #fefefe;
         }
     </style>
 </head>
@@ -164,6 +198,16 @@ while($role = $roleQuery->fetch_assoc()) {
                                         <?php echo $hero['name']; ?>
                                     </h6>
                                     <p class="card-text"><?php ?></p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <a class="btn btn-primary">Edit</a>
+                                        </div>
+                                        <div class="col-6">
+                                            <a href="?action_type=delete_hero&id_hero=<?php echo $hero['id'] ?>" class="btn btn-danger">Delete</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
