@@ -12,9 +12,8 @@ $conn = new mysqli($host, $user, $pw, $db);
 // Model
 if(isset($_GET['action_type']) || isset($_POST['action_type']))
 {
-    // - Role
-    // -- Insert
-    if($_GET['action_type'] == 'add_role') {
+    // - Role -- Create
+    if(@$_GET['action_type'] == 'add_role') {
         $addRoleQuery = $conn->query("INSERT INTO role VALUES (
             NULL, 
             '$_GET[role_name]'
@@ -23,20 +22,54 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
         header("Location: 4.php");
     }
 
-    // - Hero
-    // -- Insert
-    if($_POST['action_type'] == 'add_hero') {
-        $addRoleQuery = $conn->query("INSERT INTO hero VALUES (
-            NULL, 
-            '$_POST[hero_name]',
-            '$_POST[role]',
-            '$filename',
-            '$_POST[deskripsi]
-        )");
-    
-        header("Location: 4.php");
+    // - Hero -- Create
+    if(@$_POST['action_type'] == 'add_hero') {
+        $limitSize = 10 * 1024 * 1024;
+        $extension =  array('png','jpg','jpeg','gif');
+        
+        $fileName = $_FILES['hero_image']['name'];
+        $tmp = $_FILES['hero_image']['tmp_name'];
+        $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
+        $fileSize = $_FILES['hero_image']['size'];
+
+        if($fileSize > $limitSize){
+            header("location:4.php?message=post_failed&error=size_too_big");		
+        } else {
+            if(!in_array($fileType, $extension)){
+                header("location:4.php?message=post_failed&error=extension_unacceptable");		
+            }else{
+                $fileName = date('d-m-Y').'-'.$fileName;
+                move_uploaded_file($tmp, 'hero_images/' . $fileName);
+
+                $addHeroQuery = $conn->query("INSERT INTO hero VALUES (
+                    NULL, 
+                    '$_POST[hero_name]',
+                    '$_POST[role]',
+                    '$fileName',
+                    '$_POST[hero_description]'
+                )");
+
+                if (!$addHeroQuery) {
+                    printf("Error: %s\n", mysqli_error($conn));
+                    exit();
+                }
+
+                header("location:4.php?message=post_success");
+            }
+        }
     }
 }
+
+// - Role -- Read
+$roleQuery = $conn->query("SELECT * FROM role");
+
+$listRole = [];
+
+while($role = $roleQuery->fetch_assoc()) {
+    array_push($listRole, $role);
+}
+
+// / End of Model
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,6 +102,11 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
         .hero-card {
             margin: 10px 0;
         }
+
+        .hero-card .hero-name {
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+        }
     </style>
 </head>
 <body>
@@ -89,58 +127,55 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
 
         <?php
         // List Role
-        $roleQuery = $conn->query("SELECT * FROM role");
-
-        
-        while($role = $roleQuery->fetch_assoc())
+        foreach ($listRole as $role)
         {
         ?>
-            <div class="row role-row">
-                <div class="col-12">
-                    <h4>
-                        <?php echo $role['name']; ?>
-                    </h4>
-            
-                    <div class="row hero-row">
-                        <?php
-                        // List Hero by Role
-                        $heroQuery = $conn->query("SELECT * FROM hero WHERE id_role = " . $role['id']);
+        <div class="row role-row">
+            <div class="col-12">
+                <h4>
+                    <?php echo $role['name']; ?>
+                </h4>
+        
+                <div class="row hero-row">
+                    <?php
+                    // List Hero by Role
+                    $heroQuery = $conn->query("SELECT * FROM hero WHERE id_role = " . $role['id']);
 
-                        if($heroQuery->num_rows == 0) {
-                        ?>
-                            <div class="col-12 alert alert-info" role="alert">
-                                No hero on this role yet.
-                            </div>
-                        <?php
-                        } else {
-                        ?>
+                    if($heroQuery->num_rows == 0) {
+                    ?>
+                        <div class="col-12 alert alert-info" role="alert">
+                            No hero on this role yet.
+                        </div>
+                    <?php
+                    } else {
+                    ?>
 
-                            <?php
-                            while($hero = $heroQuery->fetch_assoc())
-                            {
-                                // print_r($hero);
-                            ?>
-                            
-                            <div class="col-3">
-                                <div class="card hero-card">
-                                    <div class="card-header">
+                        <?php
+                        while($hero = $heroQuery->fetch_assoc())
+                        {
+                            // print_r($hero);
+                        ?>
+                        
+                        <div class="col-3">
+                            <div class="card hero-card">
+                                <img src="hero_images/<?php echo $hero['image'];  ?>" class="card-img-top" alt="...">
+                                <div class="card-body">
+                                    <h6 class="hero-name">
                                         <?php echo $hero['name']; ?>
-                                    </div>
-                                    <!-- <img src="<?php  ?>" class="card-img-top" alt="..."> -->
-                                    <div class="card-body">
-                                        <p class="card-text"><?php ?></p>
-                                    </div>
+                                    </h6>
+                                    <p class="card-text"><?php ?></p>
                                 </div>
                             </div>
+                        </div>
 
-                        <?php
-                            }
+                    <?php
                         }
-                        ?>
-                    </div>
-
+                    }
+                    ?>
                 </div>
+
             </div>
+        </div>
         <?php
         }
         ?>
@@ -163,6 +198,55 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
                         <div class="form-group">
                             <label for="role-name-content" class="col-form-label">Role</label>
                             <input type="text" class="form-control" id="role-name-content" name="role_name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add hero -->
+    <div class="modal fade" id="hero-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action_type" value="add_hero">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Hero</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="role-content" class="col-form-label">Role</label>
+                            <select id="role-content" class="form-control" name="role" required>
+                                <option value="">-- Choose Role --</option>
+                                <?php
+                                foreach ($listRole as $role)
+                                {
+                                ?>
+                                    <option value="<?php echo $role['id'] ?>"><?php echo $role['name'] ?></option>
+                                <?php
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hero-name-content" class="col-form-label">Name</label>
+                            <input type="text" class="form-control" id="hero-name-content" name="hero_name" autocomplete="off" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hero-image-content" class="col-form-label">Image</label>
+                            <input type="file" class="form-control" id="hero-image-content" name="hero_image">
+                        </div>
+                        <div class="form-group">
+                            <label for="hero-description-content" class="col-form-label">Description</label>
+                            <textarea id="hero-description-content" class="form-control" name="hero_description"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
