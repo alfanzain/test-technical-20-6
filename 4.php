@@ -19,7 +19,7 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
             '$_GET[role_name]'
         )");
     
-        header("Location: 4.php");
+        header("Location: 4.php?message=create_success");
     }
 
     // Role -- Update
@@ -61,10 +61,10 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
         $fileSize = $_FILES['hero_image']['size'];
 
         if($fileSize > $limitSize){
-            header("location:4.php?message=post_failed&error=size_too_big");		
+            header("location:4.php?message=create_failed&error=size_too_big");		
         } else {
             if(!in_array($fileType, $extension)){
-                header("location:4.php?message=post_failed&error=extension_unacceptable");		
+                header("location:4.php?message=create_failed&error=extension_unacceptable");		
             }else{
                 $fileName = uniqid() . "." . $fileType;
                 move_uploaded_file($tmp, 'hero_images/' . $fileName);
@@ -82,7 +82,7 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
                     exit();
                 }
 
-                header("location:4.php?message=post_success");
+                header("location:4.php?message=create_success");
             }
         }
     }
@@ -100,10 +100,10 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
             $fileSize = $_FILES['hero_image']['size'];
     
             if($fileSize > $limitSize){
-                header("location:4.php?message=post_failed&error=size_too_big");		
+                header("location:4.php?message=edit_failed&error=size_too_big");		
             } else {
                 if(!in_array($fileType, $extension)){
-                    header("location:4.php?message=post_failed&error=extension_unacceptable");		
+                    header("location:4.php?message=edit_failed&error=extension_unacceptable");		
                 }else{
                     $fileName = uniqid() . "." . $fileType;
                     move_uploaded_file($tmp, 'hero_images/' . $fileName);
@@ -124,7 +124,7 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
                         exit();
                     }
     
-                    header("location:4.php?message=post_success");
+                    header("location:4.php?message=edit_success");
                 }
             }
         } else {
@@ -143,7 +143,7 @@ if(isset($_GET['action_type']) || isset($_POST['action_type']))
                 exit();
             }
 
-            header("location:4.php?message=post_success");
+            header("location:4.php?message=edit_success");
         }
     }
 
@@ -187,12 +187,16 @@ while($role = $roleQuery->fetch_assoc()) {
         }
 
         .header {
-            margin-bottom: 100px;
+            margin-bottom: 3rem;
             padding: 1.5rem 0;
         }
 
         .header .actions button {
             margin-right: 0.5rem;
+        }
+
+        .message {
+            margin-bottom: 3rem;
         }
 
         .role-row {
@@ -269,6 +273,51 @@ while($role = $roleQuery->fetch_assoc()) {
                 </div>
             </div>
         </div>
+
+        <?php
+        // Alert message
+        if (@isset($_GET['message']))
+        {
+        ?>
+        <div class="message">
+
+            <?php
+            if (@$_GET['message'] == 'create_success')
+            {
+            ?>
+            <div class="alert alert-success">
+                Create success!
+            </div>
+            <?php
+            }
+            ?>
+
+            <?php
+            if (@$_GET['message'] == 'edit_success')
+            {
+            ?>
+            <div class="alert alert-success">
+                Edit success!
+            </div>
+            <?php
+            }
+            ?>
+
+            <?php
+            if (@$_GET['message'] == 'delete_success')
+            {
+            ?>
+            <div class="alert alert-success">
+                Delete success!
+            </div>
+            <?php
+            }
+            ?>
+
+        </div>        
+        <?php
+        }
+        ?>
 
         <?php
         // List Role
