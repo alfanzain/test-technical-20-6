@@ -1,4 +1,4 @@
-let hitungUangKembalian = (param1, param2) => {
+const hitungUangKembalian = (param1, param2) => {
     let totalKembalian = param1 - param2
     let kembalian = []
     let pecahanUang = [
@@ -32,7 +32,7 @@ let hitungUangKembalian = (param1, param2) => {
 
     console.log('Uang dibayar : ' + param1)
     console.log('Total bayar : ' + param2)
-    
+
     console.log('================================================')
 
     for (let index in kembalian) {
