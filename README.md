@@ -22,4 +22,6 @@ Jalankan pada browser
 #### Point 4 (Waysgram)
 Salin 4.php pada htdocs XAMPP atau www Laragon. 
 
+Impor database `db_mobile_ganggu_dumbways.sql`
+
 Jalankan di browser pada url `127.0.0.1/4.php`
