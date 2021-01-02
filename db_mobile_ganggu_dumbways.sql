@@ -46,7 +46,7 @@ CREATE TABLE `hero` (
 
 LOCK TABLES `hero` WRITE;
 /*!40000 ALTER TABLE `hero` DISABLE KEYS */;
-INSERT INTO `hero` VALUES (1,'Phantom Assassin',1,NULL,'The moment she finds her prey, Phantom Assassin strikes.'),(2,'Troll Warlord',1,NULL,'Troll Warlord'),(3,'Void Spirit',1,NULL,'Elder Spirit'),(4,'Mars',3,NULL,'The Impaler'),(5,'Visage',3,NULL,'My familiar dies'),(6,'Earth Spirit',4,NULL,'You rock.'),(7,'Tiny',4,NULL,'Tiny\'s coming in'),(8,'Grimstroke',4,NULL,'Artistry'),(9,'Oracle',4,NULL,'What if?'),(10,'Crystal Maiden',5,NULL,'Want to build a snowman?'),(11,'Jakiro',5,NULL,'Fire and ice!');
+INSERT INTO `hero` VALUES (1,'Phantom Assassin',1,NULL,'The moment she finds her prey, Phantom Assassin strikes.'),(2,'Troll Warlord',1,NULL,'Troll Warlord'),(3,'Void Spirit',1,NULL,'Elder Spirit'),(4,'Mars',3,NULL,'The Impaler'),(5,'Visage',3,NULL,'My familiar dies'),(6,'Earth Spirit',4,NULL,'You rock.'),(7,'Tiny',4,NULL,'Tiny\'s coming in'),(8,'Grimstroke',4,NULL,'Artistry'),(9,'Oracle',4,'5ff06e3d0f226.png','What if?'),(10,'Crystal Maiden',5,'5ff06e4539027.png','Rylai, the Crystal Maiden, is a ranged intelligence hero who uses the power of frost and ice to disable and dispatch her foes. A slow and fragile support, Crystal Maiden\'s strength lies in her battery of strong nukes, disables and slows. Crystal Nova is an area-of-effect nuke that slows enemies\' attack and movement speeds, while Frostbite immobilizes an enemy in a block of ice, dealing moderate damage per second. Coordinating these spells with a laning partner\'s own abilities will bring many an enemy to their knees. Her passive Arcane Aura also improves the mana regeneration for heroes in Rylai\'s team, multiplying their spellcasting in the early game. Later on, she has the potential to lay waste to her enemies in teamfights if she can channel her deadly ultimate Freezing Field uninterrupted. Her global mana aura, strong disables and nukes, and a lack of item dependence make Crystal Maiden a reliable and, with judicious use of her ultimate, a devastating support caster.'),(11,'Jakiro',5,NULL,'Fire and ice!');
 /*!40000 ALTER TABLE `hero` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -83,4 +83,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-02 17:07:21
+-- Dump completed on 2021-01-02 20:00:10
